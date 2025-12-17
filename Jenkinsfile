@@ -18,9 +18,9 @@ pipeline {
             }
         }
 
-        stage("Run") {
+        stage("Deploy") {
             steps {
-                sh "./main.bin"
+                sh "scp main.bin laborant@target"
             }
         }
     }
