@@ -14,7 +14,13 @@ pipeline {
 
         stage("Build") {
             steps {
-                sh "go build main.go"
+                sh "go build -o main.bin main.go"
+            }
+        }
+
+        stage("Run") {
+            steps {
+                sh "./main.bin"
             }
         }
     }
