@@ -18,9 +18,9 @@ pipeline {
             }
         }
 
-        stage("Deploy") {
+        stage("Deploy with Ansible") {
             steps {
-                sh "scp main.bin laborant@target"
+                sh "ansible-playbook --inventory hosts.ini playbook.yml"
             }
         }
     }
