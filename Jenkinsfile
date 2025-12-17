@@ -18,19 +18,9 @@ pipeline {
             }
         }
 
-        stage("Deploy with Ansible") {
+        stage("Deploy") {
             steps {
-                sshagent(credentials: ['secret-key']) {
-                    sh '''
-                        mkdir -p ~/.ssh
-                        chmod 700 ~/.ssh
-
-                        ssh-keyscan -H target >> ~/.ssh/known_hosts
-                        chmod 600 ~/.ssh/known_hosts
-
-                        ansible-playbook --inventory hosts.ini playbook.yml
-                    '''
-                }
+                sh: "ansible-playbook --inventory hosts.ini playbook.yml"
             }
         }
     }

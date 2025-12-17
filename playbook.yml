@@ -1,20 +1,27 @@
 - hosts: all
+  become: true
   tasks:
-    - name: Copy the artifact
-      # no scp
-      copy:
-        src: main
-        dest: /home/laborant/main
+    - name: Ensure Docker is installed
+      ansible.builtin.package:
+        name: docker.io
+        state: present
 
-    - name: Create a unit file
-      become: True
-      copy:
-        src: main.service
-        dest: /etc/systemd/system/main.service
-
-    - name: Start the service
-      become: True
-      ansible.builtin.systemd:
-        name: main.service
-        daemon_reload: true
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
+        name: docker
         state: started
+        enabled: true
+
+    - name: Pull application image
+      community.docker.docker_image:
+        name: ttl.sh/myapp:2h
+        source: pull
+
+    - name: Run application container
+      community.docker.docker_container:
+        name: myapp
+        image: ttl.sh/myapp:2h
+        state: started
+        restart_policy: always
+        ports:
+          - "4444:4444"
