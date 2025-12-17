@@ -3,8 +3,8 @@
     - name: Copy the artifact
       # no scp
       copy:
-        src: main.bin
-        dest: /home/laborant/main.bin
+        src: main
+        dest: /home/laborant/main
 
     - name: Create a unit file
       become: True

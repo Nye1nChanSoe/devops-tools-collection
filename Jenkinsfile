@@ -14,13 +14,23 @@ pipeline {
 
         stage("Build") {
             steps {
-                sh "go build -o main.bin main.go"
+                sh "go build -o main main.go"
             }
         }
 
         stage("Deploy with Ansible") {
             steps {
-                sh "ansible-playbook --inventory hosts.ini playbook.yml"
+                sshagent(credentials: ['secret-key']) {
+                    sh '''
+                        mkdir -p ~/.ssh
+                        chmod 700 ~/.ssh
+
+                        ssh-keyscan -H target >> ~/.ssh/known_hosts
+                        chmod 600 ~/.ssh/known_hosts
+
+                        ansible-playbook --inventory hosts.ini playbook.yml
+                    '''
+                }
             }
         }
     }
