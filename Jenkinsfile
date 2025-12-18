@@ -12,13 +12,22 @@ pipeline {
       }
     }
 
+    stage("Terraform Plan") {
+      steps {
+        sshagent(credentials: ['ec2-ssh']) {
+          sh '''
+            ssh-add -L > pubkey.txt
+            terraform plan -var="ssh_public_key=$(cat pubkey.txt)"
+          '''
+        }
+      }
+    }
+
     stage("Terraform Apply") {
       steps {
         sshagent(credentials: ['ec2-ssh']) {
           sh '''
-            # extract public key from ssh-agent
             ssh-add -L > pubkey.txt
-
             terraform apply -auto-approve \
               -var="ssh_public_key=$(cat pubkey.txt)"
           '''
@@ -26,10 +35,19 @@ pipeline {
       }
     }
 
-    stage("Show Public IP") {
+    stage("Show Outputs") {
       steps {
-        sh 'terraform output public_ip'
+        sh '''
+          echo "Public IP: $(terraform output -raw public_ip)"
+          echo "Service URL: $(terraform output -raw service_url)"
+        '''
       }
+    }
+  }
+
+  post {
+    always {
+      sh 'rm -f pubkey.txt'
     }
   }
 }
