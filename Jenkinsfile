@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    AWS_DEFAULT_REGION = "ap-southeast-1"
+    TF_IN_AUTOMATION = "true"
   }
 
   stages {
@@ -14,23 +14,34 @@ pipeline {
 
     stage("Terraform Plan") {
       steps {
-        sshagent(credentials: ['ec2-ssh']) {
-          sh '''
-            ssh-add -L > pubkey.txt
-            terraform plan -var="ssh_public_key=$(cat pubkey.txt)"
-          '''
+        withCredentials([
+          string(
+            credentialsId: 'ec2-ssh-pubkey',
+            variable: 'TF_VAR_ssh_public_key'
+          ),
+          [
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-credentials'
+          ]
+        ]) {
+          sh 'terraform plan'
         }
       }
     }
 
     stage("Terraform Apply") {
       steps {
-        sshagent(credentials: ['ec2-ssh']) {
-          sh '''
-            ssh-add -L > pubkey.txt
-            terraform apply -auto-approve \
-              -var="ssh_public_key=$(cat pubkey.txt)"
-          '''
+        withCredentials([
+          string(
+            credentialsId: 'ec2-ssh-pubkey',
+            variable: 'TF_VAR_ssh_public_key'
+          ),
+          [
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-credentials'
+          ]
+        ]) {
+          sh 'terraform apply -auto-approve'
         }
       }
     }
@@ -42,12 +53,6 @@ pipeline {
           echo "Service URL: $(terraform output -raw service_url)"
         '''
       }
-    }
-  }
-
-  post {
-    always {
-      sh 'rm -f pubkey.txt'
     }
   }
 }
