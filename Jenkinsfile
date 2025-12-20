@@ -69,7 +69,7 @@ pipeline {
 
     stage("Test") {
       steps {
-        sh 'go test ./..'
+        sh 'go test ./...'
       }
     }
 
@@ -81,7 +81,7 @@ pipeline {
 
     stage("Deployment") {
       steps {
-        sshagent(credentials: ['secret-key']) {
+        sshagent(credentials: ['ec2-ssh-pubkey']) {
           sh '''
             EC2_IP=$(terraform output -raw public_ip)
 
