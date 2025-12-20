@@ -10,5 +10,4 @@ subnet_cidr = "10.0.1.0/24"
 
 ami_id         = "ami-0940ccc74896086cc"
 instance_type  = "t3.micro"
-ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEb8B1PPdqBp/RQe/uVoKAmg02JVih2fFQkBSyeLC/8k nyeinchansoe.business@gmail.com"
 allowed_ssh_cidr = "0.0.0.0/0"

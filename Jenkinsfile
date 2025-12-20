@@ -10,62 +10,62 @@ pipeline {
   }
 
   stages {
-    stage("Terraform Init") {
-      steps {
-        dir('infra') {
-          sh 'terraform init'
-        }
-      }
-    }
+  //   stage("Terraform Init") {
+  //     steps {
+  //       dir('infra') {
+  //         sh 'terraform init'
+  //       }
+  //     }
+  //   }
 
-    stage("Terraform Plan") {
-      steps {
-        dir('infra') {
-          withCredentials([
-            string(
-              credentialsId: 'ec2-ssh-pubkey',
-              variable: 'TF_VAR_ssh_public_key'
-            ),
-            [
-              $class: 'AmazonWebServicesCredentialsBinding',
-              credentialsId: 'aws-credentials'
-            ]
-          ]) {
-            sh 'terraform plan'
-          }
-        }
-      }
-    }
+  //   stage("Terraform Plan") {
+  //     steps {
+  //       dir('infra') {
+  //         withCredentials([
+  //           string(
+  //             credentialsId: 'ec2-ssh-pubkey',
+  //             variable: 'TF_VAR_ssh_public_key'
+  //           ),
+  //           [
+  //             $class: 'AmazonWebServicesCredentialsBinding',
+  //             credentialsId: 'aws-credentials'
+  //           ]
+  //         ]) {
+  //           sh 'terraform plan'
+  //         }
+  //       }
+  //     }
+  //   }
 
-    stage("Terraform Apply") {
-      steps {
-        dir('infra') {
-          withCredentials([
-            string(
-              credentialsId: 'ec2-ssh-pubkey',
-              variable: 'TF_VAR_ssh_public_key'
-            ),
-            [
-              $class: 'AmazonWebServicesCredentialsBinding',
-              credentialsId: 'aws-credentials'
-            ]
-          ]) {
-            sh 'terraform apply -auto-approve'
-          }
-        }
-      }
-    }
+  //   stage("Terraform Apply") {
+  //     steps {
+  //       dir('infra') {
+  //         withCredentials([
+  //           string(
+  //             credentialsId: 'ec2-ssh-pubkey',
+  //             variable: 'TF_VAR_ssh_public_key'
+  //           ),
+  //           [
+  //             $class: 'AmazonWebServicesCredentialsBinding',
+  //             credentialsId: 'aws-credentials'
+  //           ]
+  //         ]) {
+  //           sh 'terraform apply -auto-approve'
+  //         }
+  //       }
+  //     }
+  //   }
 
-    stage("Terraform Outputs") {
-      steps {
-        dir('infra') {
-          sh '''
-            echo "Public IP: $(terraform output -raw public_ip)"
-            echo "Service URL: $(terraform output -raw service_url)"
-          '''
-        }
-      }
-    }
+  //   stage("Terraform Outputs") {
+  //     steps {
+  //       dir('infra') {
+  //         sh '''
+  //           echo "Public IP: $(terraform output -raw public_ip)"
+  //           echo "Service URL: $(terraform output -raw service_url)"
+  //         '''
+  //       }
+  //     }
+  //   }
 
     stage("Test") {
       steps {
@@ -81,7 +81,7 @@ pipeline {
 
     stage("Deployment") {
       steps {
-        sshagent(credentials: ['ec2-ssh-pubkey']) {
+        sshagent(credentials: ['secret-key']) {
           sh '''
             EC2_IP=$(terraform output -raw public_ip)
 
